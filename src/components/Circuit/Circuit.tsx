@@ -10,6 +10,9 @@ import {
   type CircuitColumnData,
 } from "@/models/CircuitModels";
 import CircuitColumn from "@/components/CircuitColumn/CircuitColumn";
+import { useEffect } from "react";
+import { simulate } from "@/services/CircuitSimulator";
+import { ketOne } from "@/models/MatrixModels";
 
 interface CircuitProps {
   cols: CircuitColumnData[];
@@ -25,6 +28,14 @@ function Circuit(props: CircuitProps) {
 
   const wireX1 = PAD_X + LABEL_W - 8;
   const wireX2 = svgW - PAD_X;
+
+  useEffect(() => {
+    const initialState = ketOne.kron(ketOne);
+    const results = simulate(cols, nQubits, initialState);
+    for (const result of results) {
+      console.log(result.densityMatrix.toString());
+    }
+  }, [cols, nQubits]);
 
   return (
     <div
