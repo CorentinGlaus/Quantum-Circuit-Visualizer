@@ -4,6 +4,7 @@ import Circuit from "@/components/Circuit/Circuit";
 import type { CircuitColumnData } from "@/models/CircuitModels";
 
 const bellState: CircuitColumnData[] = [
+  { gates: ["Bloch"] },
   { gates: ["H"] },
   { gates: ["•", "X"] },
 ];

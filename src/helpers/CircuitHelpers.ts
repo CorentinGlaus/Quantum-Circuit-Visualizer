@@ -18,3 +18,16 @@ export function gateX(stepIndex: number) {
 export function qubitY(qubitIndex: number) {
   return PAD_Y + qubitIndex * QUBIT_GAP;
 }
+
+export interface BlochPosition {
+  x: number;
+  y: number;
+}
+
+export function findBlochPositions(columns: CircuitColumnData[]): BlochPosition[] {
+  return columns.flatMap((col, x) =>
+    col.gates
+      .map((gate, y) => (gate === "Bloch" ? { x, y } : null))
+      .filter((pos): pos is BlochPosition => pos !== null)
+  );
+}

@@ -3,6 +3,7 @@ import { COLORS, type CircuitColumnData } from "@/models/CircuitModels";
 import CnotTarget from "@/components/Gates/CnotTarget";
 import ControlDot from "@/components/Gates/ControlDot";
 import GateBox from "@/components/Gates/GateBox";
+import BlochBox from "../Gates/BlochBox";
 
 interface CircuitColumnProps {
   col: CircuitColumnData;
@@ -36,6 +37,7 @@ function CircuitColumn({ col, stepIndex }: CircuitColumnProps) {
 
         if (gate === "•") return <ControlDot key={qi} x={x} y={y} />;
         if (gate === "X" && isCnot) return <CnotTarget key={qi} x={x} y={y} />;
+        if (gate === "Bloch") return <BlochBox key={qi} x={x} y={y} />
 
         return <GateBox key={qi} x={x} y={y} label={gate} />;
       })}

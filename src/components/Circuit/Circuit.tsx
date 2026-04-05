@@ -1,8 +1,10 @@
 import "./Circuit.css";
-import { qubitY, numQubits } from "@/helpers/CircuitHelpers";
+import { qubitY, numQubits, gateX, findBlochPositions } from "@/helpers/CircuitHelpers";
 import {
   CELL_W,
+  CIRCUIT_RATIO,
   COLORS,
+  GATE_SIZE,
   LABEL_W,
   PAD_X,
   PAD_Y,
@@ -13,6 +15,7 @@ import CircuitColumn from "@/components/CircuitColumn/CircuitColumn";
 import { useEffect } from "react";
 import { simulate } from "@/services/CircuitSimulator";
 import { ketOne } from "@/models/MatrixModels";
+import BlochSphere from "../BlochSphere/BlochSphere";
 
 interface CircuitProps {
   cols: CircuitColumnData[];
@@ -38,18 +41,19 @@ function Circuit(props: CircuitProps) {
   }, [cols, nQubits]);
 
   return (
-    <div
-      style={{
-        display: "inline-block",
-        background: COLORS.bg,
-        borderRadius: 12,
-        padding: 0,
-        fontFamily: "monospace",
-      }}
-    >
+    <div className="circuit-container">
+      {findBlochPositions(cols).map(({ x, y }) => (
+        <div className="bloch-sphere" style={{
+          top: (qubitY(y) - GATE_SIZE / 2) * CIRCUIT_RATIO,
+          left: (gateX(x) - GATE_SIZE / 2) * CIRCUIT_RATIO
+        }}>
+          <BlochSphere x={1} y={0} z={0} />
+        </div>
+      ))}
+
       <svg
-        width={svgW * 2}
-        height={svgH * 2}
+        width={svgW * CIRCUIT_RATIO}
+        height={svgH * CIRCUIT_RATIO}
         viewBox={`0 0 ${svgW} ${svgH}`}
         xmlns="http://www.w3.org/2000/svg"
       >

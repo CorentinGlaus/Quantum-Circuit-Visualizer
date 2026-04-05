@@ -1,4 +1,4 @@
-export type Gate = "H" | "X" | "•" | 1;
+export type Gate = "H" | "X" | "•" | "Bloch" | 1;
 
 export interface CircuitColumnData {
   gates: Gate[];
@@ -19,7 +19,8 @@ export const COLORS = {
 
 export const CELL_W = 72;
 export const QUBIT_GAP = 64;
-export const PAD_X = 56;
+export const PAD_X = 10;
 export const PAD_Y = 40;
 export const GATE_SIZE = 36;
 export const LABEL_W = 28;
+export const CIRCUIT_RATIO = 4;
