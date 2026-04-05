@@ -1,6 +1,7 @@
 .circuit-container {
   position: relative;
-  display: "inline-block"
+  display: "inline-block";
+  overflow-x: auto;
 }
 
 .bloch-sphere {

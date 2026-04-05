@@ -2,11 +2,15 @@ import type { CircuitColumnData, Gate } from "@/models/CircuitModels";
 import { Complex, Matrix, qubitWiseMultiply } from "@/models/MatrixModels";
 import type { ControlBit } from "@/models/MatrixModels";
 
+export interface QubitState {
+  reducedDensityMatrix: Matrix;
+}
 
 export interface QuantumState {
   step: number;
   stateVector: Matrix;
   densityMatrix: Matrix;
+  qubits: QubitState[];
 }
 
 //TO DO: Do optimisation, will be very slow for big circuits
@@ -16,11 +20,11 @@ export function simulate(
   initialState?: Matrix,
 ): QuantumState[] {
   let state = initialState ?? zeroState(numQubits);
-  const snapshots: QuantumState[] = [buildSnapshot(0, state)];
+  const snapshots: QuantumState[] = [buildSnapshot(0, state, numQubits)];
 
   for (let i = 0; i < columns.length; i++) {
     state = applyColumn(state, columns[i], numQubits);
-    snapshots.push(buildSnapshot(i + 1, state));
+    snapshots.push(buildSnapshot(i + 1, state, numQubits));
   }
 
   return snapshots;
@@ -53,11 +57,18 @@ function applyColumn(state: Matrix, column: CircuitColumnData, numQubits: number
   return current;
 }
 
-function buildSnapshot(step: number, state: Matrix): QuantumState {
+function buildSnapshot(step: number, state: Matrix, numQubits: number): QuantumState {
+  const dm = toDensityMatrix(state);
+
+  const qubits: QubitState[] = Array.from({ length: numQubits }, (_, q) => ({
+    reducedDensityMatrix: singleQubitRDM(dm, q, numQubits),
+  }));
+
   return {
     step,
     stateVector: state,
-    densityMatrix: toDensityMatrix(state),
+    densityMatrix: dm,
+    qubits: qubits
   };
 }
 
@@ -119,4 +130,18 @@ export function partialTrace(
   }
 
   return output;
+}
+
+function singleQubitRDM(densityMatrix: Matrix, qubitIndex: number, numQubits: number): Matrix {
+  const traceOut = Array.from({ length: numQubits }, (_, i) => i)
+    .filter(i => i !== qubitIndex);
+  return partialTrace(numQubits, densityMatrix, traceOut);
+}
+
+export function rdmToBloch(rdm: Matrix): { x: number; y: number; z: number } {
+  return {
+    x: 2 * rdm.m[0][1].re,
+    y: 2 * rdm.m[1][0].im,
+    z: rdm.m[0][0].re - rdm.m[1][1].re,
+  };
 }

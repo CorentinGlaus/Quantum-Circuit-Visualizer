@@ -14,8 +14,8 @@ import {
 } from "@/models/CircuitModels";
 import CircuitColumn from "@/components/CircuitColumn/CircuitColumn";
 import { useEffect, useMemo } from "react";
-import { simulate } from "@/services/CircuitSimulator";
-import { ketOne } from "@/models/MatrixModels";
+import { rdmToBloch, simulate } from "@/services/CircuitSimulator";
+import { ketZero } from "@/models/MatrixModels";
 import BlochSphere from "../BlochSphere/BlochSphere";
 
 interface CircuitProps {
@@ -34,7 +34,7 @@ function Circuit(props: CircuitProps) {
   const wireX2 = svgW - PAD_X;
 
   const quantumStates = useMemo(() => {
-    const initialState = ketOne.kron(ketOne);
+    const initialState = ketZero.kron(ketZero);
     return simulate(cols, nQubits, initialState);
   }, [cols, nQubits]);
 
@@ -46,14 +46,19 @@ function Circuit(props: CircuitProps) {
 
   return (
     <div className="circuit-container">
-      {findBlochPositions(cols).map(({ x, y }, index) => (
-        <div className="bloch-sphere" key={index} style={{
-          top: (qubitY(y) + BLOCH_PAD - GATE_SIZE / 2) * CIRCUIT_RATIO,
-          left: (gateX(x) + BLOCH_PAD / 2 - GATE_SIZE / 2) * CIRCUIT_RATIO
-        }}>
-          <BlochSphere x={1} y={0} z={0} />
-        </div>
-      ))}
+      {findBlochPositions(cols).map(({ x, y }, index) => {
+        const rdm = quantumStates[x]?.qubits[y]?.reducedDensityMatrix;
+        const bloch = rdm ? rdmToBloch(rdm) : { x: 0, y: 0, z: 1 };
+
+        return (
+          <div className="bloch-sphere" key={`${x}-${y}`} style={{
+            top: (qubitY(y) + BLOCH_PAD - GATE_SIZE / 2) * CIRCUIT_RATIO,
+            left: (gateX(x) + BLOCH_PAD / 2 - GATE_SIZE / 2) * CIRCUIT_RATIO
+          }}>
+            <BlochSphere key={index} x={bloch.x} y={bloch.y} z={bloch.z} />
+          </div>
+        );
+      })}
 
       <svg
         width={svgW * CIRCUIT_RATIO}

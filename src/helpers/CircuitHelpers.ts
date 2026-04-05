@@ -5,6 +5,7 @@ import {
   PAD_Y,
   QUBIT_GAP,
   type CircuitColumnData,
+  type Gate,
 } from "@/models/CircuitModels";
 
 export function numQubits(cols: CircuitColumnData[]) {
@@ -30,4 +31,9 @@ export function findBlochPositions(columns: CircuitColumnData[]): BlochPosition[
       .map((gate, y) => (gate === "Bloch" ? { x, y } : null))
       .filter((pos): pos is BlochPosition => pos !== null)
   );
+}
+
+export function parseCircuit(json: string): CircuitColumnData[] {
+  const parsed = JSON.parse(json);
+  return parsed.cols.map((col: Gate[]) => ({ gates: col }));
 }
