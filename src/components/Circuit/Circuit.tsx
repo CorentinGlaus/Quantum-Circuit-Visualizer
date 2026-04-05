@@ -1,6 +1,7 @@
 import "./Circuit.css";
 import { qubitY, numQubits, gateX, findBlochPositions } from "@/helpers/CircuitHelpers";
 import {
+  BLOCH_PAD,
   CELL_W,
   CIRCUIT_RATIO,
   COLORS,
@@ -12,7 +13,7 @@ import {
   type CircuitColumnData,
 } from "@/models/CircuitModels";
 import CircuitColumn from "@/components/CircuitColumn/CircuitColumn";
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import { simulate } from "@/services/CircuitSimulator";
 import { ketOne } from "@/models/MatrixModels";
 import BlochSphere from "../BlochSphere/BlochSphere";
@@ -32,20 +33,23 @@ function Circuit(props: CircuitProps) {
   const wireX1 = PAD_X + LABEL_W - 8;
   const wireX2 = svgW - PAD_X;
 
-  useEffect(() => {
+  const quantumStates = useMemo(() => {
     const initialState = ketOne.kron(ketOne);
-    const results = simulate(cols, nQubits, initialState);
-    for (const result of results) {
+    return simulate(cols, nQubits, initialState);
+  }, [cols, nQubits]);
+
+  useEffect(() => {
+    for (const result of quantumStates) {
       console.log(result.densityMatrix.toString());
     }
-  }, [cols, nQubits]);
+  }, [quantumStates]);
 
   return (
     <div className="circuit-container">
-      {findBlochPositions(cols).map(({ x, y }) => (
-        <div className="bloch-sphere" style={{
-          top: (qubitY(y) - GATE_SIZE / 2) * CIRCUIT_RATIO,
-          left: (gateX(x) - GATE_SIZE / 2) * CIRCUIT_RATIO
+      {findBlochPositions(cols).map(({ x, y }, index) => (
+        <div className="bloch-sphere" key={index} style={{
+          top: (qubitY(y) + BLOCH_PAD - GATE_SIZE / 2) * CIRCUIT_RATIO,
+          left: (gateX(x) + BLOCH_PAD / 2 - GATE_SIZE / 2) * CIRCUIT_RATIO
         }}>
           <BlochSphere x={1} y={0} z={0} />
         </div>

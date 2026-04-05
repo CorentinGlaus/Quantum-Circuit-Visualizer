@@ -24,3 +24,4 @@ export const PAD_Y = 40;
 export const GATE_SIZE = 36;
 export const LABEL_W = 28;
 export const CIRCUIT_RATIO = 4;
+export const BLOCH_PAD = 2.5

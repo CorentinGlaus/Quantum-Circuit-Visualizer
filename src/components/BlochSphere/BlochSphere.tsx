@@ -1,4 +1,4 @@
-import { CIRCUIT_RATIO, GATE_SIZE } from "@/models/CircuitModels";
+import { BLOCH_PAD, CIRCUIT_RATIO, GATE_SIZE } from "@/models/CircuitModels";
 import { useEffect, useRef } from "react";
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
@@ -67,7 +67,7 @@ function BlochSphere({ x, y, z }: BlochSphereProps) {
     camera.lookAt(0, 0, 0);
 
     const renderer = new THREE.WebGLRenderer({ antialias: true });
-    renderer.setSize(GATE_SIZE * CIRCUIT_RATIO, GATE_SIZE * CIRCUIT_RATIO);
+    renderer.setSize((GATE_SIZE - BLOCH_PAD) * CIRCUIT_RATIO, (GATE_SIZE - BLOCH_PAD) * CIRCUIT_RATIO);
     renderer.setClearColor(0x000000, 0);
     mount.appendChild(renderer.domElement);
 
@@ -92,6 +92,7 @@ function BlochSphere({ x, y, z }: BlochSphereProps) {
     meshGroup.add(valueGroup);
 
     scene.add(meshGroup);
+
     // Drag and drop
     const controls = new OrbitControls(camera, renderer.domElement);
     controls.object.up.set(0, 0, 1);
@@ -107,7 +108,6 @@ function BlochSphere({ x, y, z }: BlochSphereProps) {
     scene.add(light);
     scene.add(new THREE.AmbientLight(0xffffff, 0.5));
 
-    // Animation loop
     let animId: number;
     const animate = () => {
       animId = requestAnimationFrame(animate);
@@ -116,13 +116,12 @@ function BlochSphere({ x, y, z }: BlochSphereProps) {
     };
     animate();
 
-    // Cleanup
     return () => {
       cancelAnimationFrame(animId);
       renderer.dispose();
       mount.removeChild(renderer.domElement);
     };
-  }, []);
+  }, [x, y, z]);
 
   return <div ref={mountRef} />;
 }
