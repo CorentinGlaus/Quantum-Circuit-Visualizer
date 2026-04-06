@@ -1,25 +1,29 @@
 import "./App.css";
 import { useRef, useState } from "react";
 import Circuit from "@/components/Circuit/Circuit";
-import type { CircuitColumnData } from "@/models/CircuitModels";
+import type { CircuitModel } from "@/models/CircuitModels";
 import { parseCircuit } from "./helpers/CircuitHelpers";
 
-const bellState: CircuitColumnData[] = [
-  { gates: ["Bloch"] },
-  { gates: ["H"] },
-  { gates: ["•", "X"] },
-];
+const bellState: CircuitModel = {
+  cols: [
+    { gates: ["Bloch"] },
+    { gates: ["H"] },
+    { gates: ["•", "X"] },
+  ],
+  numQubits: 2,
+  init: ["0", "0"]
+};
 
 function App() {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [cols, setCols] = useState<CircuitColumnData[]>(bellState);
+  const [circuitState, setCircuitState] = useState<CircuitModel>(bellState);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const handleConfirm = () => {
     const json = textareaRef.current?.value;
     if (!json) return;
     try {
-      setCols(parseCircuit(json));
+      setCircuitState(parseCircuit(json));
       setIsModalOpen(false);
     } catch (e) {
       alert(`Invalid circuit JSON: ${e}`);
@@ -31,7 +35,7 @@ function App() {
       <button className="import-button" onClick={() => setIsModalOpen(true)}>
         Import circuit
       </button>
-      <Circuit cols={cols}></Circuit>
+      <Circuit circuitState={circuitState}></Circuit>
       {isModalOpen && (
         <div className="modal-overlay" onClick={() => setIsModalOpen(false)}>
           <div className="import-modal" onClick={(e) => e.stopPropagation()}>

@@ -1,5 +1,5 @@
 import "./Circuit.css";
-import { qubitY, numQubits, gateX, findBlochPositions } from "@/helpers/CircuitHelpers";
+import { qubitY, gateX, findBlochPositions } from "@/helpers/CircuitHelpers";
 import {
   BLOCH_PAD,
   CELL_W,
@@ -10,43 +10,36 @@ import {
   PAD_X,
   PAD_Y,
   QUBIT_GAP,
-  type CircuitColumnData,
+  type CircuitModel,
 } from "@/models/CircuitModels";
 import CircuitColumn from "@/components/CircuitColumn/CircuitColumn";
 import { useEffect, useMemo } from "react";
 import { rdmToBloch, simulate } from "@/services/CircuitSimulator";
-import { ketZero } from "@/models/MatrixModels";
 import BlochSphere from "../BlochSphere/BlochSphere";
 
 interface CircuitProps {
-  cols: CircuitColumnData[];
+  circuitState: CircuitModel;
 }
 
-function Circuit(props: CircuitProps) {
-  const { cols } = props;
-  const nQubits = numQubits(cols);
+function Circuit({ circuitState }: CircuitProps) {
+  const cols = circuitState.cols;
+  const nQubits = circuitState.numQubits;
   const nSteps = cols.length;
 
   const svgW = PAD_X * 2 + LABEL_W + nSteps * CELL_W;
   const svgH = PAD_Y * 2 + (nQubits - 1) * QUBIT_GAP;
 
-  const wireX1 = PAD_X + LABEL_W - 8;
+  const wireX1 = PAD_X + LABEL_W;
   const wireX2 = svgW - PAD_X;
 
   const quantumStates = useMemo(() => {
-    const initialState = ketZero.kron(ketZero);
-    return simulate(cols, nQubits, initialState);
-  }, [cols, nQubits]);
-
-  useEffect(() => {
-    for (const result of quantumStates) {
-      console.log(result.densityMatrix.toString());
-    }
-  }, [quantumStates]);
+    return simulate(circuitState);
+  }, [circuitState]);
 
   return (
     <div className="circuit-container">
       {findBlochPositions(cols).map(({ x, y }, index) => {
+        console.log(quantumStates);
         const rdm = quantumStates[x]?.qubits[y]?.reducedDensityMatrix;
         const bloch = rdm ? rdmToBloch(rdm) : { x: 0, y: 0, z: 1 };
 
@@ -90,7 +83,7 @@ function Circuit(props: CircuitProps) {
             fontFamily="'JetBrains Mono', 'Fira Mono', monospace"
             textAnchor="start"
           >
-            q{i}
+            |{circuitState.init[i]}⟩
           </text>
         ))}
 

@@ -5,10 +5,12 @@ import {
   PAD_Y,
   QUBIT_GAP,
   type CircuitColumnData,
+  type CircuitModel,
   type Gate,
+  type InitState,
 } from "@/models/CircuitModels";
 
-export function numQubits(cols: CircuitColumnData[]) {
+export function getNumQubits(cols: CircuitColumnData[]) {
   return cols.reduce((max: number, col) => Math.max(max, col.gates.length), 0);
 }
 
@@ -33,7 +35,19 @@ export function findBlochPositions(columns: CircuitColumnData[]): BlochPosition[
   );
 }
 
-export function parseCircuit(json: string): CircuitColumnData[] {
+const gateAliases: Record<string, string> = {
+  "Z^½": "S",
+  "Z^¼": "T",
+};
+
+export function parseCircuit(json: string): CircuitModel {
   const parsed = JSON.parse(json);
-  return parsed.cols.map((col: Gate[]) => ({ gates: col }));
+  const cols = parsed.cols.map((col: Gate[]) => ({
+    gates: col.map((gate) => gateAliases[gate as string] ?? gate),
+  }));
+  const numQubits = getNumQubits(cols);
+  const initStates: InitState[] = Array.from({ length: numQubits }, (_, i) =>
+    (String(parsed.init?.[i] ?? "0")) as InitState
+  );
+  return { numQubits: numQubits, cols: cols, init: initStates };
 }

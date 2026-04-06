@@ -1,6 +1,7 @@
 import { BLOCH_PAD, CIRCUIT_RATIO, GATE_SIZE } from "@/models/CircuitModels";
 import { useEffect, useRef } from "react";
 import * as THREE from "three";
+import { CSS2DObject, CSS2DRenderer } from "three/examples/jsm/Addons.js";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 
 function createArrow(direction: THREE.Vector3, color: THREE.ColorRepresentation) {
@@ -13,6 +14,20 @@ function createArrow(direction: THREE.Vector3, color: THREE.ColorRepresentation)
     0.1
   );
   return arrow
+}
+
+function createAxisLabel(text: string, position: THREE.Vector3, color: string): CSS2DObject {
+  const div = document.createElement("div");
+  div.textContent = text;
+  div.style.cssText = `
+    color: ${color};
+    font-size: 11px;
+    font-family: monospace;
+    pointer-events: none;
+  `;
+  const label = new CSS2DObject(div);
+  label.position.copy(position);
+  return label;
 }
 
 function createValueMesh(
@@ -62,7 +77,7 @@ function BlochSphere({ x, y, z }: BlochSphereProps) {
 
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(75, 1, 0.1, 100);
-    camera.position.set(1.5, 1.5, 1.5);
+    camera.position.set(1.75, 1.75, 1.75);
     camera.up.set(0, 0, 1);
     camera.lookAt(0, 0, 0);
 
@@ -86,6 +101,17 @@ function BlochSphere({ x, y, z }: BlochSphereProps) {
     meshGroup.add(yArrow);
     const zArrow = createArrow(new THREE.Vector3(0, 0, 1), 0x0000FF);
     meshGroup.add(zArrow);
+
+    // Labels
+    const labelRenderer = new CSS2DRenderer();
+    labelRenderer.setSize((GATE_SIZE - BLOCH_PAD) * CIRCUIT_RATIO, (GATE_SIZE - BLOCH_PAD) * CIRCUIT_RATIO);
+    labelRenderer.domElement.style.position = "absolute";
+    labelRenderer.domElement.style.top = "0";
+    labelRenderer.domElement.style.pointerEvents = "none";
+    mount.appendChild(labelRenderer.domElement);
+    meshGroup.add(createAxisLabel("x", new THREE.Vector3(1.7, 0, 0), "#FF0000"));
+    meshGroup.add(createAxisLabel("y", new THREE.Vector3(0, 1.7, 0), "#00FF00"));
+    meshGroup.add(createAxisLabel("z", new THREE.Vector3(0, 0, 1.7), "#0000FF"));
 
     // Value mesh
     const valueGroup = createValueMesh(x, y, z);
@@ -113,6 +139,7 @@ function BlochSphere({ x, y, z }: BlochSphereProps) {
       animId = requestAnimationFrame(animate);
       controls.update();
       renderer.render(scene, camera);
+      labelRenderer.render(scene, camera);
     };
     animate();
 
@@ -120,10 +147,11 @@ function BlochSphere({ x, y, z }: BlochSphereProps) {
       cancelAnimationFrame(animId);
       renderer.dispose();
       mount.removeChild(renderer.domElement);
+      mount.removeChild(labelRenderer.domElement);
     };
   }, [x, y, z]);
 
-  return <div ref={mountRef} />;
+  return <div ref={mountRef} style={{ position: "relative" }} />;
 }
 
 export default BlochSphere;

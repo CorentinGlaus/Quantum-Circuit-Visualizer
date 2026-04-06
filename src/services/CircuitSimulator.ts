@@ -1,5 +1,5 @@
-import type { CircuitColumnData, Gate } from "@/models/CircuitModels";
-import { Complex, Matrix, qubitWiseMultiply } from "@/models/MatrixModels";
+import type { CircuitColumnData, CircuitModel, Gate, InitState } from "@/models/CircuitModels";
+import { Complex, initStateToKet, Matrix, qubitWiseMultiply } from "@/models/MatrixModels";
 import type { ControlBit } from "@/models/MatrixModels";
 
 export interface QubitState {
@@ -15,26 +15,23 @@ export interface QuantumState {
 
 //TO DO: Do optimisation, will be very slow for big circuits
 export function simulate(
-  columns: CircuitColumnData[],
-  numQubits: number,
-  initialState?: Matrix,
+  circuit: CircuitModel,
 ): QuantumState[] {
-  let state = initialState ?? zeroState(numQubits);
-  const snapshots: QuantumState[] = [buildSnapshot(0, state, numQubits)];
+  let state = buildInitialState(circuit.init);
+  const snapshots: QuantumState[] = [buildSnapshot(0, state, circuit.numQubits)];
 
-  for (let i = 0; i < columns.length; i++) {
-    state = applyColumn(state, columns[i], numQubits);
-    snapshots.push(buildSnapshot(i + 1, state, numQubits));
+  for (let i = 0; i < circuit.cols.length; i++) {
+    state = applyColumn(state, circuit.cols[i], circuit.numQubits);
+    snapshots.push(buildSnapshot(i + 1, state, circuit.numQubits));
   }
 
   return snapshots;
 }
 
-function zeroState(numQubits: number): Matrix {
-  const dim = 2 ** numQubits;
-  return new Matrix(
-    Array.from({ length: dim }, (_, i) => [new Complex(i === 0 ? 1 : 0)]),
-  );
+export function buildInitialState(init: InitState[]): Matrix {
+  return [...init].reverse()
+    .map(initStateToKet)
+    .reduce((acc, ket) => acc.kron(ket));
 }
 
 function applyColumn(state: Matrix, column: CircuitColumnData, numQubits: number): Matrix {
@@ -59,7 +56,7 @@ function applyColumn(state: Matrix, column: CircuitColumnData, numQubits: number
 
 function buildSnapshot(step: number, state: Matrix, numQubits: number): QuantumState {
   const dm = toDensityMatrix(state);
-
+  console.log(state);
   const qubits: QubitState[] = Array.from({ length: numQubits }, (_, q) => ({
     reducedDensityMatrix: singleQubitRDM(dm, q, numQubits),
   }));
@@ -80,6 +77,10 @@ function gateMatrix(gate: Gate): Matrix | null {
   switch (gate) {
     case "H": return Matrix.H;
     case "X": return Matrix.X;
+    case "Y": return Matrix.Y;
+    case "Z": return Matrix.Z;
+    case "S": return Matrix.S;
+    case "T": return Matrix.T;
     default: return null;
   }
 }

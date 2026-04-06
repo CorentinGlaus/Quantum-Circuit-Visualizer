@@ -1,7 +1,14 @@
-export type Gate = "H" | "X" | "•" | "Bloch" | 1;
+export type Gate = "H" | "X" | "Y" | "Z" | "S" | "T" | "•" | "Bloch" | 1;
+export type InitState = "0" | "1" | "-" | "+" | "i" | "-i";
 
 export interface CircuitColumnData {
   gates: Gate[];
+}
+
+export interface CircuitModel {
+  numQubits: number;
+  cols: CircuitColumnData[];
+  init: InitState[];
 }
 
 export const COLORS = {

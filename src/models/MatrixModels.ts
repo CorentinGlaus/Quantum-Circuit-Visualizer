@@ -1,6 +1,8 @@
 // Python simulator translated into typescript with the help of an LLM
 // ─── Complex ─────────────────────────────────────────────────────────────────
 
+import type { InitState } from "./CircuitModels";
+
 /**
  * An immutable complex number  a + bi.
  * All arithmetic operations return new Complex instances (value semantics).
@@ -494,8 +496,21 @@ export function qubitWiseMultiply(
 
 // ─── Standard computational basis states ─────────────────────────────────────
 
-/** |0⟩ — the "zero" qubit basis state. */
-export const ketZero: Matrix = new Matrix([[1], [0]]);
+export function initStateToKet(state: InitState): Matrix {
+  switch (state) {
+    case "0": return ketZero;
+    case "1": return ketOne;
+    case "+": return ketPlus;
+    case "-": return ketMinus;
+    case "i": return ketI;
+    case "-i": return ketMinusI;
+  }
+}
 
-/** |1⟩ — the "one" qubit basis state. */
+const s = 1 / Math.SQRT2;
+export const ketZero: Matrix = new Matrix([[1], [0]]);
 export const ketOne: Matrix = new Matrix([[0], [1]]);
+export const ketPlus: Matrix = new Matrix([[s], [s]]);
+export const ketMinus: Matrix = new Matrix([[s], [-s]]);
+export const ketI: Matrix = new Matrix([[s], [new Complex(0, s)]]);
+export const ketMinusI: Matrix = new Matrix([[s], [new Complex(0, -s)]]);
