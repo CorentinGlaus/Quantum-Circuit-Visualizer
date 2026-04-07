@@ -8,10 +8,11 @@ const bellState: CircuitModel = {
   cols: [
     { gates: ["Bloch"] },
     { gates: ["H"] },
+    { gates: ["Bloch"] },
     { gates: ["•", "X"] },
   ],
   numQubits: 2,
-  init: ["0", "0"]
+  init: ["0", "0"],
 };
 
 function App() {
@@ -41,10 +42,7 @@ function App() {
           <div className="import-modal" onClick={(e) => e.stopPropagation()}>
             <h2>Import circuit</h2>
             <textarea className="import-text" ref={textareaRef}></textarea>
-            <button
-              className="confirm-button"
-              onClick={handleConfirm}
-            >
+            <button className="confirm-button" onClick={handleConfirm}>
               Confirm
             </button>
           </div>

@@ -14,9 +14,7 @@ export interface QuantumState {
 }
 
 //TO DO: Do optimisation, will be very slow for big circuits
-export function simulate(
-  circuit: CircuitModel,
-): QuantumState[] {
+export function simulate(circuit: CircuitModel): QuantumState[] {
   let state = buildInitialState(circuit.init);
   const snapshots: QuantumState[] = [buildSnapshot(0, state, circuit.numQubits)];
 
@@ -29,7 +27,8 @@ export function simulate(
 }
 
 export function buildInitialState(init: InitState[]): Matrix {
-  return [...init].reverse()
+  return [...init]
+    .reverse()
     .map(initStateToKet)
     .reduce((acc, ket) => acc.kron(ket));
 }
@@ -56,7 +55,6 @@ function applyColumn(state: Matrix, column: CircuitColumnData, numQubits: number
 
 function buildSnapshot(step: number, state: Matrix, numQubits: number): QuantumState {
   const dm = toDensityMatrix(state);
-  console.log(state);
   const qubits: QubitState[] = Array.from({ length: numQubits }, (_, q) => ({
     reducedDensityMatrix: singleQubitRDM(dm, q, numQubits),
   }));
@@ -65,7 +63,7 @@ function buildSnapshot(step: number, state: Matrix, numQubits: number): QuantumS
     step,
     stateVector: state,
     densityMatrix: dm,
-    qubits: qubits
+    qubits: qubits,
   };
 }
 
@@ -75,13 +73,20 @@ function toDensityMatrix(state: Matrix): Matrix {
 
 function gateMatrix(gate: Gate): Matrix | null {
   switch (gate) {
-    case "H": return Matrix.H;
-    case "X": return Matrix.X;
-    case "Y": return Matrix.Y;
-    case "Z": return Matrix.Z;
-    case "S": return Matrix.S;
-    case "T": return Matrix.T;
-    default: return null;
+    case "H":
+      return Matrix.H;
+    case "X":
+      return Matrix.X;
+    case "Y":
+      return Matrix.Y;
+    case "Z":
+      return Matrix.Z;
+    case "S":
+      return Matrix.S;
+    case "T":
+      return Matrix.T;
+    default:
+      return null;
   }
 }
 
@@ -102,14 +107,9 @@ function rearrangeBits(value: number, positions: number[]): number {
   Returns the partial trace of the inputMatrix based on the qubits to traceout
   Based on this code: https://arxiv.org/abs/2506.08142
 */
-export function partialTrace(
-  n: number,
-  inputMatrix: Matrix,
-  qubitsToTraceOut: number[],
-): Matrix {
+export function partialTrace(n: number, inputMatrix: Matrix, qubitsToTraceOut: number[]): Matrix {
   const tracedOutSet = new Set(qubitsToTraceOut);
-  const qubitsToKeep = Array.from({ length: n }, (_, i) => i)
-    .filter(i => !tracedOutSet.has(i));
+  const qubitsToKeep = Array.from({ length: n }, (_, i) => i).filter((i) => !tracedOutSet.has(i));
 
   const tracedDimension = 1 << qubitsToTraceOut.length;
   const resultDimension = 1 << qubitsToKeep.length;
@@ -124,8 +124,7 @@ export function partialTrace(
 
       for (let outCol = 0; outCol < resultDimension; outCol++) {
         const inCol = sharedFull | rearrangeBits(outCol, qubitsToKeep);
-        output.m[outRow][outCol] = output.m[outRow][outCol]
-          .add(inputMatrix.m[inRow][inCol]);
+        output.m[outRow][outCol] = output.m[outRow][outCol].add(inputMatrix.m[inRow][inCol]);
       }
     }
   }
@@ -134,8 +133,7 @@ export function partialTrace(
 }
 
 function singleQubitRDM(densityMatrix: Matrix, qubitIndex: number, numQubits: number): Matrix {
-  const traceOut = Array.from({ length: numQubits }, (_, i) => i)
-    .filter(i => i !== qubitIndex);
+  const traceOut = Array.from({ length: numQubits }, (_, i) => i).filter((i) => i !== qubitIndex);
   return partialTrace(numQubits, densityMatrix, traceOut);
 }
 

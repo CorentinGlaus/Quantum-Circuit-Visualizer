@@ -13,15 +13,16 @@ import {
   type CircuitModel,
 } from "@/models/CircuitModels";
 import CircuitColumn from "@/components/CircuitColumn/CircuitColumn";
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { partialTrace, rdmToBloch, simulate } from "@/services/CircuitSimulator";
 import BlochSphere from "../BlochSphere/BlochSphere";
 import { StepButton } from "../StepButton/StepButton";
 import { MatrixDisplay } from "../Matrix/Matrix";
+import type { CameraData } from "@/models/Camera";
 
 interface StepId {
-  step: number,
-  qubit: number
+  step: number;
+  qubit: number;
 }
 
 interface CircuitProps {
@@ -34,17 +35,30 @@ function Circuit({ circuitState }: CircuitProps) {
   const nSteps = cols.length;
 
   const [selectedSteps, setSelectedSteps] = useState<StepId[]>([]);
+  const [cameraTheta, setCameraTheta] = useState(1);
+  const [cameraPhi, setCameraPhi] = useState(1);
+  const cameraData: CameraData = useMemo(
+    () => ({
+      theta: cameraTheta,
+      phi: cameraPhi,
+    }),
+    [cameraTheta, cameraPhi],
+  );
+
+  const handleCameraChange = useCallback((theta: number, phi: number) => {
+    setCameraTheta(theta);
+    setCameraPhi(phi);
+  }, []);
 
   const toggleStep = (step: number, qubit: number) => {
-    setSelectedSteps(prev => {
-      const exists = prev.some(s => s.step === step && s.qubit === qubit);
-      if (exists) return prev.filter(s => !(s.step === step && s.qubit === qubit));
+    setSelectedSteps((prev) => {
+      const exists = prev.some((s) => s.step === step && s.qubit === qubit);
+      if (exists) return prev.filter((s) => !(s.step === step && s.qubit === qubit));
       return [...prev, { step, qubit }];
     });
   };
 
-  const isSelected = (step: number, qubit: number) =>
-    selectedSteps.some(s => s.step === step && s.qubit === qubit);
+  const isSelected = (step: number, qubit: number) => selectedSteps.some((s) => s.step === step && s.qubit === qubit);
 
   const svgW = PAD_X * 2 + LABEL_W + nSteps * CELL_W;
   const svgH = PAD_Y * 2 + (nQubits - 1) * QUBIT_GAP;
@@ -57,24 +71,21 @@ function Circuit({ circuitState }: CircuitProps) {
   }, [circuitState]);
 
   const displayMatrices = useMemo(() => {
-    const stepsWithSelection = [...new Set(selectedSteps.map(s => s.step))];
+    const stepsWithSelection = [...new Set(selectedSteps.map((s) => s.step))];
 
-    return stepsWithSelection.map(step => {
-      const qubitsSelected = selectedSteps
-        .filter(s => s.step === step)
-        .map(s => s.qubit);
+    return stepsWithSelection
+      .map((step) => {
+        const qubitsSelected = selectedSteps.filter((s) => s.step === step).map((s) => s.qubit);
 
-      const dm = quantumStates[step].densityMatrix;
+        const dm = quantumStates[step].densityMatrix;
 
-      const traceOut = Array.from({ length: nQubits }, (_, i) => i)
-        .filter(i => !qubitsSelected.includes(i));
+        const traceOut = Array.from({ length: nQubits }, (_, i) => i).filter((i) => !qubitsSelected.includes(i));
 
-      const matrix = traceOut.length === 0
-        ? dm
-        : partialTrace(nQubits, dm, traceOut);
+        const matrix = traceOut.length === 0 ? dm : partialTrace(nQubits, dm, traceOut);
 
-      return { step, qubitsSelected, matrix };
-    }).sort((a, b) => a.step - b.step); // keep them in order
+        return { step, qubitsSelected, matrix };
+      })
+      .sort((a, b) => a.step - b.step); // keep them in order
   }, [selectedSteps, quantumStates, nQubits]);
 
   return (
@@ -88,20 +99,30 @@ function Circuit({ circuitState }: CircuitProps) {
             isSelected={isSelected(step, qubit)}
             onClick={() => toggleStep(step, qubit)}
           />
-        ))
+        )),
       )}
 
       {findBlochPositions(cols).map(({ x, y }, index) => {
-        console.log(quantumStates);
         const rdm = quantumStates[x]?.qubits[y]?.reducedDensityMatrix;
         const bloch = rdm ? rdmToBloch(rdm) : { x: 0, y: 0, z: 1 };
 
         return (
-          <div className="bloch-sphere" key={`${x}-${y}`} style={{
-            top: (qubitY(y) + BLOCH_PAD - GATE_SIZE / 2) * CIRCUIT_RATIO,
-            left: (gateX(x) + BLOCH_PAD / 2 - GATE_SIZE / 2) * CIRCUIT_RATIO
-          }}>
-            <BlochSphere key={index} x={bloch.x} y={bloch.y} z={bloch.z} />
+          <div
+            className="bloch-sphere"
+            key={`${x}-${y}`}
+            style={{
+              top: (qubitY(y) + BLOCH_PAD - GATE_SIZE / 2) * CIRCUIT_RATIO,
+              left: (gateX(x) + BLOCH_PAD / 2 - GATE_SIZE / 2) * CIRCUIT_RATIO,
+            }}
+          >
+            <BlochSphere
+              key={index}
+              x={bloch.x}
+              y={bloch.y}
+              z={bloch.z}
+              cameraData={cameraData}
+              onCameraChange={handleCameraChange}
+            />
           </div>
         );
       })}
@@ -148,11 +169,14 @@ function Circuit({ circuitState }: CircuitProps) {
       {displayMatrices.length > 0 && (
         <div style={{ display: "flex", gap: 16, marginTop: 16, flexWrap: "wrap" }}>
           {displayMatrices.map(({ step, matrix }) => (
-            <div key={step} style={{
-              position: "absolute",
-              left: getStepButtonX(step),
-              top: (qubitY(nQubits - 1) + GATE_SIZE / 2) * CIRCUIT_RATIO,
-            }}>
+            <div
+              key={step}
+              style={{
+                position: "absolute",
+                left: getStepButtonX(step),
+                top: (qubitY(nQubits - 1) + GATE_SIZE / 2) * CIRCUIT_RATIO,
+              }}
+            >
               <MatrixDisplay matrix={matrix} />
             </div>
           ))}

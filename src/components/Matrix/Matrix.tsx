@@ -6,17 +6,13 @@ function ComplexCell({ re, im, size }: { re: number; im: number; size: number })
   const magnitude = Math.sqrt(re * re + im * im);
   const phase = Math.atan2(im, re);
   const radius = size / 2;
-  const lineLength = radius * 0.85 * Math.min(magnitude, 1);
+  const lineLength = radius * Math.min(magnitude, 1) - 1;
 
   const x2 = radius + lineLength * Math.cos(phase);
   const y2 = radius - lineLength * Math.sin(phase);
 
   return (
-    <svg
-      width={size}
-      height={size}
-      style={{ display: "block" }}
-    >
+    <svg width={size} height={size} style={{ display: "block" }}>
       <title>{`${re.toFixed(4)}${im >= 0 ? "+" : ""}${im.toFixed(4)}i`}</title>
 
       <rect width={size} height={size} fill={SVG_COLORS.matrixFill} />
@@ -33,8 +29,10 @@ function ComplexCell({ re, im, size }: { re: number; im: number; size: number })
 
       {magnitude > 0.001 && (
         <line
-          x1={radius} y1={radius}
-          x2={x2} y2={y2}
+          x1={radius}
+          y1={radius}
+          x2={x2}
+          y2={y2}
           stroke={SVG_COLORS.greenAccent}
           strokeWidth={1.2}
           strokeLinecap="round"
@@ -54,6 +52,6 @@ export function MatrixDisplay({ matrix }: { matrix: Matrix }) {
           ))}
         </div>
       ))}
-    </ div>
+    </div>
   );
 }
