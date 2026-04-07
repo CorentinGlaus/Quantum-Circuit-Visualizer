@@ -11,7 +11,7 @@ export interface CircuitModel {
   init: InitState[];
 }
 
-export const COLORS = {
+export const SVG_COLORS = {
   bg: "#0d1117",
   wire: "#30363d",
   gateStroke: "#58a6ff",
@@ -22,6 +22,10 @@ export const COLORS = {
   cnotLine: "#58a6ff",
   qubitLabel: "#8b949e",
   labelBg: "#161b22",
+  greenAccent: "#00ff88",
+  lightGreenAccent: "#1a3a1a",
+  borderDark: "#333344",
+  matrixFill: "#1a1a2e",
 };
 
 export const CELL_W = 72;
@@ -31,4 +35,5 @@ export const PAD_Y = 40;
 export const GATE_SIZE = 36;
 export const LABEL_W = 28;
 export const CIRCUIT_RATIO = 4;
-export const BLOCH_PAD = 2.5
+export const BLOCH_PAD = 2.5;
+export const GATES_PAD = 10;

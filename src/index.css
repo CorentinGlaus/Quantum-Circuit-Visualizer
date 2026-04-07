@@ -1,34 +1,39 @@
 :root {
-    --color-primary: #e6edf3;
-    --color-background: #0d1117;
-    --color-accent: #58a6ff;
-    --color-circuit: #30363d;
+  --color-primary: #e6edf3;
+  --color-background: #0d1117;
+  --color-dark-background: #111111;
+  --color-accent: #58a6ff;
+  --color-circuit: #30363d;
+  --color-selected: #1a3a6a;
+  --color-hover: #1a2a4a;
+  --color-border-selected: #4488cc;
+  --color-border-dark: #333344;
 
-    font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
-    line-height: 1.5;
-    font-weight: 400;
-    color-scheme: light dark;
-    color: var(--color-primary);
-    background-color: var(--color-background);
-    font-synthesis: none;
-    text-rendering: optimizeLegibility;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
+  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+  color-scheme: light dark;
+  color: var(--color-primary);
+  background-color: var(--color-background);
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 #root {
-    margin: 0;
-    padding: 0;
-    display: flex;
-    flex-direction: column;
-    height: 100%;
-    width: 100%;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
 }
 
 html,
 body {
-    margin: 0;
-    padding: 0;
-    height: 100%;
-    width: 100%;
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  width: 100%;
 }

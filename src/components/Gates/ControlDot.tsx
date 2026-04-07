@@ -1,4 +1,4 @@
-import { COLORS } from "@/models/CircuitModels";
+import { SVG_COLORS } from "@/models/CircuitModels";
 
 interface ControlDotProps {
   x: number;
@@ -6,7 +6,7 @@ interface ControlDotProps {
 }
 
 function ControlDot({ x, y }: ControlDotProps) {
-  return <circle cx={x} cy={y} r={7} fill={COLORS.controlDot} />;
+  return <circle cx={x} cy={y} r={7} fill={SVG_COLORS.controlDot} />;
 }
 
 export default ControlDot;

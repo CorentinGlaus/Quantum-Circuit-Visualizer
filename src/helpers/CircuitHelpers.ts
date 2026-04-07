@@ -1,5 +1,8 @@
 import {
   CELL_W,
+  CIRCUIT_RATIO,
+  GATE_SIZE,
+  GATES_PAD,
   LABEL_W,
   PAD_X,
   PAD_Y,
@@ -15,7 +18,11 @@ export function getNumQubits(cols: CircuitColumnData[]) {
 }
 
 export function gateX(stepIndex: number) {
-  return PAD_X + LABEL_W + stepIndex * CELL_W + CELL_W / 2;
+  return PAD_X + GATES_PAD + LABEL_W + stepIndex * CELL_W + CELL_W / 2;
+}
+
+export function getStepButtonX(stepIndex: number) {
+  return (PAD_X + GATES_PAD + LABEL_W + stepIndex * CELL_W - GATE_SIZE / 5) * CIRCUIT_RATIO;
 }
 
 export function qubitY(qubitIndex: number) {
@@ -42,9 +49,13 @@ const gateAliases: Record<string, string> = {
 
 export function parseCircuit(json: string): CircuitModel {
   const parsed = JSON.parse(json);
-  const cols = parsed.cols.map((col: Gate[]) => ({
-    gates: col.map((gate) => gateAliases[gate as string] ?? gate),
+  let cols = parsed.cols.map((col: Gate[]) => ({
+    gates: col.map((gate) => {
+      if (typeof gate === "string" && gate.startsWith("Density")) return 1;
+      return gateAliases[gate as string] ?? gate;
+    }),
   }));
+  cols = cols.filter((col: CircuitColumnData) => !col.gates.every(gate => gate == 1));
   const numQubits = getNumQubits(cols);
   const initStates: InitState[] = Array.from({ length: numQubits }, (_, i) =>
     (String(parsed.init?.[i] ?? "0")) as InitState

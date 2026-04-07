@@ -1,5 +1,5 @@
 import { qubitY, gateX } from "@/helpers/CircuitHelpers";
-import { COLORS, type CircuitColumnData } from "@/models/CircuitModels";
+import { SVG_COLORS, type CircuitColumnData } from "@/models/CircuitModels";
 import CnotTarget from "@/components/Gates/CnotTarget";
 import ControlDot from "@/components/Gates/ControlDot";
 import GateBox from "@/components/Gates/GateBox";
@@ -25,7 +25,7 @@ function CircuitColumn({ col, stepIndex }: CircuitColumnProps) {
           y1={qubitY(controlQubit)}
           x2={x}
           y2={qubitY(targetQubit)}
-          stroke={COLORS.cnotLine}
+          stroke={SVG_COLORS.cnotLine}
           strokeWidth={2}
         />
       )}

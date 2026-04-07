@@ -1,0 +1,19 @@
+.step-button {
+  position: absolute;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  border: 1.5px solid var(--color-circuit);
+  background: var(--color-dark-background);
+  cursor: pointer;
+}
+
+.step-button:hover {
+  background: var(--color-hover);
+  border-color: var(--color-border-selected);
+}
+
+.step-button.selected {
+  background: var(--color-selected);
+  border-color: var(--color-border-selected);
+}

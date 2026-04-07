@@ -24,6 +24,7 @@
 
 .import-button {
   align-self: flex-start;
+  margin: 10px;
 }
 
 .confirm-button {

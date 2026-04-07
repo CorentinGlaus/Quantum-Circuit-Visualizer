@@ -1,4 +1,4 @@
-import { COLORS } from "@/models/CircuitModels";
+import { SVG_COLORS } from "@/models/CircuitModels";
 
 interface CnotTargetProps {
   x: number;
@@ -14,7 +14,7 @@ function CnotTarget({ x, y }: CnotTargetProps) {
         cy={y}
         r={r}
         fill="none"
-        stroke={COLORS.cnotTarget}
+        stroke={SVG_COLORS.cnotTarget}
         strokeWidth={2}
       />
       <line
@@ -22,7 +22,7 @@ function CnotTarget({ x, y }: CnotTargetProps) {
         y1={y - r}
         x2={x}
         y2={y + r}
-        stroke={COLORS.cnotTarget}
+        stroke={SVG_COLORS.cnotTarget}
         strokeWidth={2}
       />
       <line
@@ -30,7 +30,7 @@ function CnotTarget({ x, y }: CnotTargetProps) {
         y1={y}
         x2={x + r}
         y2={y}
-        stroke={COLORS.cnotTarget}
+        stroke={SVG_COLORS.cnotTarget}
         strokeWidth={2}
       />
     </g>

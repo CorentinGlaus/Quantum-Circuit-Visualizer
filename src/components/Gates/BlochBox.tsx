@@ -1,4 +1,4 @@
-import { COLORS, GATE_SIZE } from "@/models/CircuitModels";
+import { SVG_COLORS, GATE_SIZE } from "@/models/CircuitModels";
 
 interface BlochBoxProps {
   x: number;
@@ -14,8 +14,8 @@ function BlochBox({ x, y }: BlochBoxProps) {
         width={GATE_SIZE}
         height={GATE_SIZE}
         rx={5}
-        fill={COLORS.gateFill}
-        stroke={COLORS.gateStroke}
+        fill={SVG_COLORS.gateFill}
+        stroke={SVG_COLORS.gateStroke}
         strokeWidth={1.5}
       />
     </g>

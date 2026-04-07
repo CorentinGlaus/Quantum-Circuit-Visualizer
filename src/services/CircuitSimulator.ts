@@ -1,5 +1,5 @@
 import type { CircuitColumnData, CircuitModel, Gate, InitState } from "@/models/CircuitModels";
-import { Complex, initStateToKet, Matrix, qubitWiseMultiply } from "@/models/MatrixModels";
+import { initStateToKet, Matrix, qubitWiseMultiply } from "@/models/MatrixModels";
 import type { ControlBit } from "@/models/MatrixModels";
 
 export interface QubitState {
